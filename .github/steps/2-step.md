@@ -2,7 +2,7 @@
 
 Great work! You just connected your first MCP server to GitHub Copilot! 🎉
 
-🚨 The teachers have been busy opening new issues in your repository with bugs and feature requests! Go [take a look](https://github.com/{{full_repo_name}}/issues) - so many good ideas!
+🚨 The teachers have been busy opening new issues in your repository with bugs and feature requests! Go [take a look](https://github.com/martinpolivka/skills-integrate-mcp-with-copilot/issues) - so many good ideas!
 
 We should probably look into them and start researching for other upgrades. Fortunately, with an MCP server for GitHub, triaging these and even doing some research to get ahead should be pretty quick! 🕵️
 
