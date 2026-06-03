@@ -41,7 +41,7 @@ The issue backlog is piling up. Let’s finally tackle one, but which deserves o
 
 1. Review the suggested issues. If Copilot didn't give a specific recommendation, try providing some feedback to narrow the results.
 
-1. With the list narrowed, ask Copilot to implement an issue. **Mona won't grade if the changes work, just that an attempt was made.**
+1. With the list narrowed, ask Copilot to implement an issue.
 
    > ![Static Badge](https://img.shields.io/badge/-Prompt-text?style=social&logo=github%20copilot)
    >
@@ -53,8 +53,6 @@ The issue backlog is piling up. Let’s finally tackle one, but which deserves o
    > ```
 
    > ⚠️ **Warning:** Always verify the the actions Copilot is asking to perform, especially with the external abilities provided by an MCP server, which probably have no undo option.
-
-1. Once the pull request is created, Mona will start checking your work. Give her a moment and keep watch of the comments. You will see her respond with progress info and the next step!
 
 <details>
 <summary>Having trouble?</summary><br/>
@@ -68,5 +66,5 @@ The issue backlog is piling up. Let’s finally tackle one, but which deserves o
 
 ### Navigation
 
-- Previous: [Step 2](2-step.md)
 - Next: [Step 4](4-step.md)
+- Previous: [Step 2](2-step.md)

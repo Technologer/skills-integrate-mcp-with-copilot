@@ -146,8 +146,6 @@ Before we dive into MCP, let's start up our development environment and refamili
 
    > 🪧 **Note:** Pushing directly to `main` is not a recommended practice. It is only to simplify this exercise.
 
-1. Now that your MCP server configuration is pushed to GitHub, Mona should already be busy checking your work. Give her a moment and keep watch in the comments. You will see her respond with progress info and the next lesson.
-
 > [!NOTE]
 > The next steps will involve creating GitHub issues. If you would like to avoid notification emails, you can unwatch the repository.
 
