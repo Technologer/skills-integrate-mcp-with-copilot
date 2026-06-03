@@ -18,3 +18,10 @@ Check out these resources to learn more or get involved:
 - [Take another GitHub Skills exercise](https://learn.github.com/skills).
 - Learn more about [Model Context Protocol](https://modelcontextprotocol.io/introduction)
 - Explore the [GitHub MCP Registry](https://github.com/mcp) and try out other servers!
+
+---
+
+### Navigation
+
+- Previous: [Step 4](4-step.md)
+- [Back to README](../../README.md)

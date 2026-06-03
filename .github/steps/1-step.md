@@ -39,11 +39,28 @@ graph LR
 
 ### :keyboard: Activity: Get to know your environment
 
-Before we dive into MCP, let's start up our development environment and refamiliarize ourself with the extracurricular activity application.
+Before we dive into MCP, let's start up our development environment and refamiliarise ourself with the extracurricular activity application.
 
-1. Right-click the below button to open the **Create Codespace** page in a new tab. Use the default configuration.
+1. Clone this repository to your machine.
 
-   [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/{{full_repo_name}}?quickstart=1)
+   [![Clone in VS Code](https://img.shields.io/badge/Clone%20in-VS%20Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)](vscode://vscode.git/clone?url=https://github.com/{{full_repo_name}}.git)
+
+   Or use the terminal:
+
+   ```bash
+   # Clone the prepared workshop repository and enter its folder.
+   git clone https://github.com/{{full_repo_name}}.git
+   cd skills-integrate-mcp-with-copilot
+   ```
+
+1. Open the cloned repository in VS Code.
+
+1. Before making changes, create your own participant branch.
+
+   ```bash
+   # Create a participant branch for your lab work.
+   git switch -c participant/<your-name>
+   ```
 
 1. Validate the **Copilot Chat** and **Python** extensions are installed and enabled.
 
@@ -68,6 +85,13 @@ Before we dive into MCP, let's start up our development environment and refamili
 
    </details>
 
+   ---
+
+   ### Navigation
+
+   - [Back to README](../../README.md)
+   - Next: [Step 2](2-step.md)
+
 1. Use the **Ports** tab to find the webpage address, open it, and verify it is running.
 
    <details>
@@ -81,7 +105,7 @@ Before we dive into MCP, let's start up our development environment and refamili
 
 ### :keyboard: Activity: Add the GitHub MCP server
 
-1. Inside your codespace, open the **Copilot Chat** panel and verify **Agent** mode is selected.
+1. Inside VS Code, open the **Copilot Chat** panel and verify **Agent** mode is selected.
 
    <img width="200" alt="image" src="https://github.com/user-attachments/assets/201e08ab-14a0-48bf-824e-ba4f8f43f8ab" />
 
@@ -96,7 +120,7 @@ Before we dive into MCP, let's start up our development environment and refamili
 
    </details>
 
-1. Inside your codespace, navigate to the `.vscode` folder, and create a new file named `mcp.json`. Paste the following contents:
+1. Inside VS Code, navigate to the `.vscode` folder, and create a new file named `mcp.json`. Paste the following contents:
 
    📄 **.vscode/mcp.json**
 
@@ -143,3 +167,10 @@ Make sure:
 - You pushed the changes to the `main` branch.
 
 </details>
+
+---
+
+### Navigation
+
+- [Back to README](../../README.md)
+- Next: [Step 2](2-step.md)

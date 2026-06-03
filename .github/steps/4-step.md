@@ -41,3 +41,10 @@ While AI assistants like GitHub Copilot can dramatically improve productivity, i
    </details>
 
 1. Once the comment has been created, Mona will start checking your work. Give her a moment to provide feedback or share the final review. Nice work! You're all done! 🎉
+
+---
+
+### Navigation
+
+- Previous: [Step 3](3-step.md)
+- Next: [Review](x-review.md)

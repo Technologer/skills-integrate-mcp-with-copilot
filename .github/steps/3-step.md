@@ -60,6 +60,13 @@ The issue backlog is piling up. Let’s finally tackle one, but which deserves o
 <summary>Having trouble?</summary><br/>
 
 - If tools are not being requested, verify your MCP configuration is correct.
-- If Copilot cannot retrieve results, verify you are using this Codespace's token or a Personal Access Token (PAT) with appropriate permissions. By default, the codespace token we are using only has access to this repository.
+- If Copilot cannot retrieve results, verify you are using a Personal Access Token (PAT) with appropriate permissions or a GitHub session that has access to this repository.
 
 </details>
+
+---
+
+### Navigation
+
+- Previous: [Step 2](2-step.md)
+- Next: [Step 4](4-step.md)

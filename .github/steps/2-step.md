@@ -36,7 +36,7 @@ Isn't that cool?! Now let's do it! 👩‍🚀
 
 Let's put the GitHub MCP server to use by researching, comparing, and capturing enhancement ideas!
 
-1. Close any open files inside your codespace. This will help reduce unnecessary context.
+1. Close any open files inside VS Code. This will help reduce unnecessary context.
 
 1. Ensure the **Copilot Chat** panel is open and **Agent** mode is selected. Verify the MCP server tools are also still available.
 
@@ -86,3 +86,10 @@ Let's put the GitHub MCP server to use by researching, comparing, and capturing 
 
 > [!NOTE]
 > The Model Context Protocol (MCP) landscape is quickly evolving. Many servers, including the [Official GitHub MCP server](https://github.com/github/github-mcp-server) are in active development and do not have full parity with their stable APIs.
+
+---
+
+### Navigation
+
+- Previous: [Step 1](1-step.md)
+- Next: [Step 3](3-step.md)
