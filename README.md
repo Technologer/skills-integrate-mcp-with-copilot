@@ -10,6 +10,19 @@ _Learn how to give GitHub Copilot more tools to expand the capabilities of your 
 - **Prerequisites**: [Getting Started with Copilot](https://github.com/martinpolivka/skills-getting-started-with-github-copilot) Exercise
 - **How long**: This exercise takes less than one hour to complete.
 
+### Local prerequisites
+
+Codespaces are not used in this workshop. Before you start, make sure your computer has:
+
+- [Git](https://git-scm.com/) and access to push branches to this repository.
+- [Visual Studio Code](https://code.visualstudio.com/) with the GitHub Copilot and GitHub Copilot Chat extensions installed.
+- GitHub Copilot access for your GitHub account, with Copilot Chat, Agent Mode, and MCP enabled by your organisation policy.
+- Access to the GitHub MCP server endpoint at `https://api.githubcopilot.com/mcp/`.
+- Python 3.13 with `pip` and the ability to create a virtual environment.
+- The Python dependencies from `requirements.txt` installed locally before running the web app.
+- The VS Code Python extension and Python debugger support.
+- A modern browser for opening the local web app at `http://localhost:8000`.
+
 In this exercise, you will:
 
 1. Integrate a GitHub MCP server with GitHub Copilot.
