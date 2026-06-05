@@ -2,32 +2,60 @@ name: Step 3
 
 on:
   pull_request:
-    branches:
-      - 'participant/*'
 
 permissions:
   contents: read
-  actions: write
   issues: write
-
-env:
-  STEP_4_FILE: ".github/steps/4-step.md"
 
 jobs:
   find_exercise:
-    name: Find Exercise Issue
-    uses: skills/exercise-toolkit/.github/workflows/find-exercise-issue.yml@v0.7.0
+    name: Find participant exercise issue
+    if: startsWith(github.head_ref, 'participant/')
+    runs-on: ubuntu-latest
+    outputs:
+      issue-number: ${{ steps.find.outputs.issue-number }}
+      issue-url: ${{ steps.find.outputs.issue-url }}
+    steps:
+      - name: Find exercise issue for participant branch
+        id: find
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          REF_NAME: ${{ github.ref_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          EXERCISE_TITLE: "Integrate MCP with Copilot"
+        run: |
+          branch="$HEAD_REF"
+          if [ -z "$branch" ] && [[ "$ISSUE_TITLE" =~ \[(participant/[^]]+)\] ]]; then
+            branch="${BASH_REMATCH[1]}"
+          fi
+          if [ -z "$branch" ] && [[ "$REF_NAME" == participant/* ]]; then
+            branch="$REF_NAME"
+          fi
+          if [ -z "$branch" ]; then
+            echo "Unable to determine participant branch for this event." >&2
+            exit 1
+          fi
+          marker="[$branch]"
+          issue_number=$(gh issue list --repo "$REPOSITORY" --state open --limit 200 --json number,title | jq -r --arg marker "$marker" --arg exerciseTitle "$EXERCISE_TITLE" '.[] | select((.title | contains($marker)) and (.title | contains($exerciseTitle))) | .number' | head -n 1)
+          if [ -z "$issue_number" ]; then
+            echo "No open exercise issue found for $EXERCISE_TITLE $marker." >&2
+            exit 1
+          fi
+          issue_url=$(gh issue view "$issue_number" --repo "$REPOSITORY" --json url --jq '.url')
+          echo "issue-number=$issue_number" >> "$GITHUB_OUTPUT"
+          echo "issue-url=$issue_url" >> "$GITHUB_OUTPUT"
 
   check_step_work:
     name: Check step work
-    runs-on: ubuntu-latest
     needs: [find_exercise]
+    runs-on: ubuntu-latest
     if: |
       !github.event.repository.is_template
     env:
       ISSUE_REPOSITORY: ${{ github.repository }}
       ISSUE_NUMBER: ${{ needs.find_exercise.outputs.issue-number }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -38,23 +66,6 @@ jobs:
           repository: skills/exercise-toolkit
           path: exercise-toolkit
           ref: v0.7.0
-
-      - name: Find last comment
-        id: find-last-comment
-        uses: peter-evans/find-comment@v3
-        with:
-          repository: ${{ env.ISSUE_REPOSITORY }}
-          issue-number: ${{ env.ISSUE_NUMBER }}
-          direction: last
-
-      - name: Update comment - checking work
-        uses: GrantBirki/comment@v2.1.1
-        with:
-          repository: ${{ env.ISSUE_REPOSITORY }}
-          issue-number: ${{ env.ISSUE_NUMBER }}
-          comment-id: ${{ steps.find-last-comment.outputs.comment-id }}
-          file: exercise-toolkit/markdown-templates/step-feedback/checking-work.md
-          edit-mode: replace
 
       # START: Check practical exercise
 
@@ -93,13 +104,13 @@ jobs:
           echo "Changes found in src directory"
           echo "STEP_MESSAGE=Great work! Changes detected in src directory" >> $GITHUB_OUTPUT
 
-      - name: Update comment - step results
+      # END: Check practical exercise
+
+      - name: Create comment - step results
         uses: GrantBirki/comment@v2.1.1
         with:
           repository: ${{ env.ISSUE_REPOSITORY }}
           issue-number: ${{ env.ISSUE_NUMBER }}
-          comment-id: ${{ steps.find-last-comment.outputs.comment-id }}
-          edit-mode: replace
           file: exercise-toolkit/markdown-templates/step-feedback/step-results-table.md
           vars: |
             step_number: 3
@@ -107,59 +118,6 @@ jobs:
               - description: ${{ steps.check-src-changes.outputs.STEP_MESSAGE }}
                 passed: ${{ steps.check-src-changes.outcome == 'success' }}
 
-      # END: Check practical exercise
-
       - name: Fail job if not all checks passed
         if: contains(steps.*.outcome, 'failure')
         run: exit 1
-
-  post_next_step_content:
-    name: Post next step content
-    needs: [find_exercise, check_step_work]
-    runs-on: ubuntu-latest
-    env:
-      ISSUE_REPOSITORY: ${{ github.repository }}
-      ISSUE_NUMBER: ${{ needs.find_exercise.outputs.issue-number }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Get response templates
-        uses: actions/checkout@v5
-        with:
-          repository: skills/exercise-toolkit
-          path: exercise-toolkit
-          ref: v0.7.0
-
-      - name: Create comment - step finished
-        uses: GrantBirki/comment@v2.1.1
-        with:
-          repository: ${{ env.ISSUE_REPOSITORY }}
-          issue-number: ${{ env.ISSUE_NUMBER }}
-          file: exercise-toolkit/markdown-templates/step-feedback/step-finished-prepare-next-step.md
-          vars: |
-            next_step_number: 4
-
-      - name: Create comment - add step content
-        uses: GrantBirki/comment@v2.1.1
-        with:
-          repository: ${{ env.ISSUE_REPOSITORY }}
-          issue-number: ${{ env.ISSUE_NUMBER }}
-          file: ${{ env.STEP_4_FILE }}
-          vars: |
-            pull_request_url: ${{ github.event.pull_request.html_url }}
-
-      - name: Create comment - watching for progress
-        uses: GrantBirki/comment@v2.1.1
-        with:
-          repository: ${{ env.ISSUE_REPOSITORY }}
-          issue-number: ${{ env.ISSUE_NUMBER }}
-          file: exercise-toolkit/markdown-templates/step-feedback/watching-for-progress.md
-
-      - name: Disable current workflow and enable next one
-        run: |
-          gh workflow disable "${{github.workflow}}"
-          gh workflow enable "Step 4"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

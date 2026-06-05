@@ -7,59 +7,36 @@ on:
 
 permissions:
   contents: write # Update Readme
-  actions: write # Disable/enable workflows
   issues: write # Create issue and comment on issues
-
-env:
-  STEP_1_FILE: ".github/steps/1-step.md"
 
 jobs:
   start_exercise:
     if: |
       !github.event.repository.is_template
-    name: Start Exercise
-    uses: skills/exercise-toolkit/.github/workflows/start-exercise.yml@v0.7.3
-    with:
-      exercise-title: "Integrate MCP with Copilot"
-      intro-message: "This exercise will help you learn how to expand GitHub Copilot's capabilities with Model Context Protocol (MCP)."
-
-  post_next_step_content:
-    name: Post next step content
+    name: Start participant exercise
     runs-on: ubuntu-latest
-    needs: [start_exercise]
-    env:
-      ISSUE_NUMBER: ${{ needs.start_exercise.outputs.issue-number }}
-      ISSUE_REPOSITORY: ${{ github.repository }}
-
+    outputs:
+      issue-number: ${{ steps.issue.outputs.issue-number }}
+      issue-url: ${{ steps.issue.outputs.issue-url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Get response templates
-        uses: actions/checkout@v5
-        with:
-          repository: skills/exercise-toolkit
-          path: exercise-toolkit
-          ref: v0.7.0
-
-      - name: Create comment - add step content
-        uses: GrantBirki/comment@v2.1.1
-        with:
-          repository: ${{ env.ISSUE_REPOSITORY }}
-          issue-number: ${{ env.ISSUE_NUMBER }}
-          file: ${{ env.STEP_1_FILE }}
-          vars: |
-            full_repo_name: ${{ github.repository }}
-
-      - name: Create comment - watching for progress
-        uses: GrantBirki/comment@v2.1.1
-        with:
-          repository: ${{ env.ISSUE_REPOSITORY }}
-          issue-number: ${{ env.ISSUE_NUMBER }}
-          file: exercise-toolkit/markdown-templates/step-feedback/watching-for-progress.md
-
-      - name: Enable next step workflow
-        run: |
-          gh workflow enable "Step 1"
+      - name: Find or create participant exercise issue
+        id: issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          PARTICIPANT_BRANCH: ${{ github.ref_name }}
+          EXERCISE_TITLE: "Integrate MCP with Copilot"
+          INTRO_MESSAGE: "This exercise will help you learn how to expand GitHub Copilot's capabilities with Model Context Protocol (MCP)."
+        run: |
+          marker="[$PARTICIPANT_BRANCH]"
+          title="Exercise: $EXERCISE_TITLE $marker"
+          issue_number=$(gh issue list --repo "$REPOSITORY" --state open --limit 200 --json number,title | jq -r --arg marker "$marker" --arg exerciseTitle "$EXERCISE_TITLE" '.[] | select((.title | contains($marker)) and (.title | contains($exerciseTitle))) | .number' | head -n 1)
+          if [ -z "$issue_number" ]; then
+            body=$(printf "%s\n\nParticipant branch: %s\n" "$INTRO_MESSAGE" "$PARTICIPANT_BRANCH")
+            issue_url=$(gh issue create --repo "$REPOSITORY" --title "$title" --body "$body")
+            issue_number=$(gh issue view "$issue_url" --repo "$REPOSITORY" --json number --jq '.number')
+          else
+            issue_url=$(gh issue view "$issue_number" --repo "$REPOSITORY" --json url --jq '.url')
+          fi
+          echo "issue-number=$issue_number" >> "$GITHUB_OUTPUT"
+          echo "issue-url=$issue_url" >> "$GITHUB_OUTPUT"
