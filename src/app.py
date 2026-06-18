@@ -25,54 +25,63 @@ activities = {
     "Chess Club": {
         "description": "Learn strategies and compete in chess tournaments",
         "schedule": "Fridays, 3:30 PM - 5:00 PM",
+        "category": "Games",
         "max_participants": 12,
         "participants": ["michael@mergington.edu", "daniel@mergington.edu"]
     },
     "Programming Class": {
         "description": "Learn programming fundamentals and build software projects",
         "schedule": "Tuesdays and Thursdays, 3:30 PM - 4:30 PM",
+        "category": "Academic",
         "max_participants": 20,
         "participants": ["emma@mergington.edu", "sophia@mergington.edu"]
     },
     "Gym Class": {
         "description": "Physical education and sports activities",
         "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
+        "category": "Sports",
         "max_participants": 30,
         "participants": ["john@mergington.edu", "olivia@mergington.edu"]
     },
     "Soccer Team": {
         "description": "Join the school soccer team and compete in matches",
         "schedule": "Tuesdays and Thursdays, 4:00 PM - 5:30 PM",
+        "category": "Sports",
         "max_participants": 22,
         "participants": ["liam@mergington.edu", "noah@mergington.edu"]
     },
     "Basketball Team": {
         "description": "Practice and play basketball with the school team",
         "schedule": "Wednesdays and Fridays, 3:30 PM - 5:00 PM",
+        "category": "Sports",
         "max_participants": 15,
         "participants": ["ava@mergington.edu", "mia@mergington.edu"]
     },
     "Art Club": {
         "description": "Explore your creativity through painting and drawing",
         "schedule": "Thursdays, 3:30 PM - 5:00 PM",
+        "category": "Arts",
         "max_participants": 15,
         "participants": ["amelia@mergington.edu", "harper@mergington.edu"]
     },
     "Drama Club": {
         "description": "Act, direct, and produce plays and performances",
         "schedule": "Mondays and Wednesdays, 4:00 PM - 5:30 PM",
+        "category": "Arts",
         "max_participants": 20,
         "participants": ["ella@mergington.edu", "scarlett@mergington.edu"]
     },
     "Math Club": {
         "description": "Solve challenging problems and participate in math competitions",
         "schedule": "Tuesdays, 3:30 PM - 4:30 PM",
+        "category": "Academic",
         "max_participants": 10,
         "participants": ["james@mergington.edu", "benjamin@mergington.edu"]
     },
     "Debate Team": {
         "description": "Develop public speaking and argumentation skills",
         "schedule": "Fridays, 4:00 PM - 5:30 PM",
+        "category": "Academic",
         "max_participants": 12,
         "participants": ["charlotte@mergington.edu", "henry@mergington.edu"]
     }
@@ -155,6 +164,65 @@ def unregister_from_activity(activity_name: str, email: str):
     # Remove student
     activity["participants"].remove(email)
     return {"message": f"Unregistered {email} from {activity_name}"}
+
+
+@app.get("/search")
+def search_activities(query: str = "", category: str = "", sort_by: str = "name"):
+    """Search and filter activities
+    
+    Parameters:
+    - query: Search term to match against activity name and description (case-insensitive)
+    - category: Filter by category (Academic, Sports, Arts, Games)
+    - sort_by: Sort results by 'name', 'availability', or 'participants'
+    
+    Returns filtered and sorted activities
+    """
+    results = {}
+    
+    # Filter activities based on query and category
+    for activity_name, activity_data in activities.items():
+        # Check if activity matches query
+        if query:
+            query_lower = query.lower()
+            name_match = query_lower in activity_name.lower()
+            desc_match = query_lower in activity_data["description"].lower()
+            if not (name_match or desc_match):
+                continue
+        
+        # Check if activity matches category filter
+        if category and activity_data.get("category", "") != category:
+            continue
+        
+        results[activity_name] = activity_data
+    
+    # Sort results
+    if sort_by == "availability":
+        # Sort by spots available (descending)
+        results = dict(sorted(
+            results.items(),
+            key=lambda x: x[1]["max_participants"] - len(x[1]["participants"]),
+            reverse=True
+        ))
+    elif sort_by == "participants":
+        # Sort by current participants (ascending - smallest first)
+        results = dict(sorted(
+            results.items(),
+            key=lambda x: len(x[1]["participants"])
+        ))
+    else:  # default sort by name
+        results = dict(sorted(results.items()))
+    
+    return results
+
+
+@app.get("/categories")
+def get_categories():
+    """Get all available categories"""
+    categories = set()
+    for activity in activities.values():
+        if "category" in activity:
+            categories.add(activity["category"])
+    return {"categories": sorted(list(categories))}
 
 
 @app.get("/leaderboard")

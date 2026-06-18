@@ -20,6 +20,31 @@
       <section id="activities-section" class="view-section active">
         <section id="activities-container">
           <h3>Available Activities</h3>
+          
+          <div id="search-filter-controls">
+            <div class="form-group">
+              <label for="search-input">Search:</label>
+              <input type="text" id="search-input" placeholder="Search by name or description..." />
+            </div>
+            
+            <div class="form-group">
+              <label for="category-filter">Category:</label>
+              <select id="category-filter">
+                <option value="">-- All Categories --</option>
+                <!-- Categories will be loaded here -->
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="sort-select">Sort By:</label>
+              <select id="sort-select">
+                <option value="name">Name (A-Z)</option>
+                <option value="availability">Most Available</option>
+                <option value="participants">Fewest Participants</option>
+              </select>
+            </div>
+          </div>
+          
           <div id="activities-list">
             <!-- Activities will be loaded here -->
             <p>Loading activities...</p>
