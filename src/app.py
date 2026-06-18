@@ -5,11 +5,12 @@ A super simple FastAPI application that allows students to view and sign up
 for extracurricular activities at Mergington High School.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
+from typing import Optional
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
@@ -77,6 +78,30 @@ activities = {
     }
 }
 
+# In-memory leaderboard database
+# Structure: {activity_name: [{email, score, rank}, ...]}
+leaderboard = {
+    "Chess Club": [
+        {"email": "michael@mergington.edu", "score": 850, "rank": 1},
+        {"email": "daniel@mergington.edu", "score": 720, "rank": 2}
+    ],
+    "Programming Class": [
+        {"email": "emma@mergington.edu", "score": 920, "rank": 1},
+        {"email": "sophia@mergington.edu", "score": 880, "rank": 2}
+    ],
+    "Soccer Team": [
+        {"email": "liam@mergington.edu", "score": 750, "rank": 1},
+        {"email": "noah@mergington.edu", "score": 700, "rank": 2}
+    ]
+}
+
+# Organizer credentials (email -> password_hash)
+# In a real app, use proper auth. For this demo, we use simple email validation
+organizers = {
+    "admin@mergington.edu",
+    "coach@mergington.edu"
+}
+
 
 @app.get("/")
 def root():
@@ -130,3 +155,61 @@ def unregister_from_activity(activity_name: str, email: str):
     # Remove student
     activity["participants"].remove(email)
     return {"message": f"Unregistered {email} from {activity_name}"}
+
+
+@app.get("/leaderboard")
+def get_all_leaderboards():
+    """Get leaderboards for all activities"""
+    return leaderboard
+
+
+@app.get("/leaderboard/{activity_name}")
+def get_activity_leaderboard(activity_name: str):
+    """Get leaderboard for a specific activity"""
+    if activity_name not in leaderboard:
+        raise HTTPException(status_code=404, detail="Activity not found or has no leaderboard")
+    
+    # Return sorted by rank
+    ranked = sorted(leaderboard[activity_name], key=lambda x: x["rank"])
+    return {"activity": activity_name, "rankings": ranked}
+
+
+@app.post("/leaderboard/{activity_name}/rank")
+def submit_score(activity_name: str, email: str, score: int, organizer_email: str):
+    """Submit a score for a student in an activity (organizer only)"""
+    # Check if organizer is authorized
+    if organizer_email not in organizers:
+        raise HTTPException(
+            status_code=403,
+            detail="Only organizers can submit scores"
+        )
+    
+    # Validate activity exists
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    
+    # Initialize leaderboard for this activity if it doesn't exist
+    if activity_name not in leaderboard:
+        leaderboard[activity_name] = []
+    
+    # Check if student is registered for the activity
+    if email not in activities[activity_name]["participants"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Student is not registered for this activity"
+        )
+    
+    # Find or create entry for this student
+    entry = next((e for e in leaderboard[activity_name] if e["email"] == email), None)
+    
+    if entry:
+        entry["score"] = score
+    else:
+        leaderboard[activity_name].append({"email": email, "score": score, "rank": 1})
+    
+    # Recalculate ranks
+    sorted_entries = sorted(leaderboard[activity_name], key=lambda x: x["score"], reverse=True)
+    for idx, entry in enumerate(sorted_entries, 1):
+        entry["rank"] = idx
+    
+    return {"message": f"Score {score} recorded for {email} in {activity_name}"}

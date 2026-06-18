@@ -155,6 +155,118 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Leaderboard functionality
+  const leaderboardActivitySelect = document.getElementById("leaderboard-activity");
+  const leaderboardContent = document.getElementById("leaderboard-content");
+
+  // Function to fetch and display leaderboard for an activity
+  async function fetchLeaderboard(activityName) {
+    if (!activityName) {
+      leaderboardContent.innerHTML = "<p>Select an activity to view leaderboard</p>";
+      return;
+    }
+
+    try {
+      const response = await fetch(`/leaderboard/${encodeURIComponent(activityName)}`);
+      
+      if (!response.ok) {
+        leaderboardContent.innerHTML = "<p>No leaderboard data available for this activity</p>";
+        return;
+      }
+
+      const data = await response.json();
+      const rankings = data.rankings;
+
+      if (rankings.length === 0) {
+        leaderboardContent.innerHTML = "<p>No rankings yet for this activity</p>";
+        return;
+      }
+
+      // Create leaderboard table
+      let tableHTML = `
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Student Email</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      rankings.forEach((entry) => {
+        let rankClass = "";
+        if (entry.rank === 1) rankClass = "gold";
+        else if (entry.rank === 2) rankClass = "silver";
+        else if (entry.rank === 3) rankClass = "bronze";
+
+        tableHTML += `
+          <tr>
+            <td><span class="rank-badge ${rankClass}">${entry.rank}</span></td>
+            <td>${entry.email}</td>
+            <td>${entry.score}</td>
+          </tr>
+        `;
+      });
+
+      tableHTML += `
+          </tbody>
+        </table>
+      `;
+
+      leaderboardContent.innerHTML = tableHTML;
+    } catch (error) {
+      leaderboardContent.innerHTML = "<p>Failed to load leaderboard. Please try again later.</p>";
+      console.error("Error fetching leaderboard:", error);
+    }
+  }
+
+  // Handle leaderboard activity selection
+  leaderboardActivitySelect.addEventListener("change", (event) => {
+    fetchLeaderboard(event.target.value);
+  });
+
+  // Navigation functionality
+  const navActivityBtn = document.getElementById("nav-activities");
+  const navLeaderboardBtn = document.getElementById("nav-leaderboard");
+  const activitiesSection = document.getElementById("activities-section");
+  const leaderboardSection = document.getElementById("leaderboard-section");
+
+  navActivityBtn.addEventListener("click", () => {
+    activitiesSection.classList.add("active");
+    leaderboardSection.classList.remove("active");
+    navActivityBtn.classList.add("active");
+    navLeaderboardBtn.classList.remove("active");
+  });
+
+  navLeaderboardBtn.addEventListener("click", () => {
+    activitiesSection.classList.remove("active");
+    leaderboardSection.classList.add("active");
+    navActivityBtn.classList.remove("active");
+    navLeaderboardBtn.classList.add("active");
+  });
+
+  // Function to populate activity dropdowns
+  async function populateActivityDropdowns() {
+    try {
+      const response = await fetch("/activities");
+      const activities = await response.json();
+      const activityNames = Object.keys(activities);
+
+      // Populate leaderboard activity dropdown
+      activityNames.forEach((name) => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        leaderboardActivitySelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error("Error populating dropdowns:", error);
+    }
+  }
+
   // Initialize app
   fetchActivities();
+  populateActivityDropdowns();
 });
